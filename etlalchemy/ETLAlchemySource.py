@@ -457,9 +457,9 @@ class ETLAlchemySource():
         
         cname = column_copy.name
         columnHasGloballyIgnoredSuffix = len(
-            filter(
+            list(filter(
                 lambda s: cname.find(s) > -1,
-                self.global_ignored_col_suffixes)) > 0
+                self.global_ignored_col_suffixes))) > 0
 
         oldColumns = self.current_ordered_table_columns
         oldColumnsLength = len(self.current_ordered_table_columns)
@@ -643,7 +643,7 @@ class ETLAlchemySource():
             self.logger.info(
                 "Sending data to target MySQL instance...(Fast [mysqlimport])")
             columns = map(lambda c: "\`{0}\`".format(c), columns)
-            cmd = ("mysqlimport -v -h{0} -u{1} -p{2} "
+            cmd = ("mysqlimport -v -h{0} -u{1} -p'{2}' "
                        "--compress "
                        "--local "
                        "--fields-terminated-by=\",\" "
@@ -961,7 +961,7 @@ class ETLAlchemySource():
                 #########################################################
                 # Generate the mapping of 'column_name' -> 'list index'
                 ########################################################
-                cols = map(lambda c: c.name, T_src.columns)
+                cols = list(map(lambda c: c.name, T_src.columns))
                 self.current_ordered_table_columns = [None] * len(cols)
                 self.original_ordered_table_columns = [None] * len(cols)
                 for i in range(0, len(cols)):
@@ -982,7 +982,7 @@ class ETLAlchemySource():
                 self.logger.info("Loading all rows into memory...")
                 rows = []
 
-                for i in range(1, (cnt / buffer_size) + 1):
+                for i in range(1, int((cnt / buffer_size) + 1)):
                     self.logger.info(
                         "Fetched {0} rows".format(str(i * buffer_size)))
                     rows += resultProxy.fetchmany(buffer_size)
@@ -1083,7 +1083,7 @@ class ETLAlchemySource():
                     # Create buffers of "100000" rows
                     # TODO: Parameterize "100000" as 'buffer_size' (should be
                     # configurable)
-                    insertionCount = (len(raw_rows) / row_buffer_size) + 1
+                    insertionCount = int(len(raw_rows) / row_buffer_size) + 1
                     raw_row_len = len(raw_rows)
                     self.total_rows += raw_row_len
                     if len(raw_rows) > 0:
@@ -1701,7 +1701,7 @@ class ETLAlchemySource():
             "Load Time (Into Target)",
             "Indexing Time",
             "Constraint Time"]
-        for (table_name, timings) in self.times.iteritems():
+        for (table_name, timings) in iter(self.times.items()):
             self.logger.info(table_name)
             for key in ordered_timings:
                 self.logger.info("-- " + str(key) + ": " +

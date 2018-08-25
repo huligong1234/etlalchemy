@@ -13,7 +13,7 @@ except ImportError:
 def _generate_literal_value_for_csv(value, dialect):
     dialect_name = dialect.name.lower()
     
-    if isinstance(value, basestring):
+    if isinstance(value, str):
         if dialect_name in ['sqlite', 'mssql']:
             # No support for 'quote' enclosed strings
             return "%s" % value
@@ -24,7 +24,7 @@ def _generate_literal_value_for_csv(value, dialect):
         return "NULL"
     elif isinstance(value, bool):
         return "%s" % int(value)
-    elif isinstance(value, (float, int, long)):
+    elif isinstance(value, (float, int)):
         return "%s" % value
     elif isinstance(value, decimal.Decimal):
         return str(value)
@@ -83,14 +83,14 @@ def _generate_literal_value_for_csv(value, dialect):
 
 def _generate_literal_value(value, dialect):
     dialect_name = dialect.name.lower()
-    if isinstance(value, basestring):
+    if isinstance(value, str):
         value = value.replace("'", "''")
         return "'%s'" % value
     elif value is None:
         return "NULL"
     elif isinstance(value, bool):
         return "%s" % int(value)
-    elif isinstance(value, (float, int, long)):
+    elif isinstance(value, (float, int)):
         return "%s" % value
     elif isinstance(value, decimal.Decimal):
         return str(value)
